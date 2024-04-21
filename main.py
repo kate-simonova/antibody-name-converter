@@ -25,6 +25,7 @@ h6_element = html.H6(
     style={'textAlign': 'center', 'color': '#333333', 'font-size': '15px', 'font-family': 'cursive', 'margin': '0'}
 )
 
+# Define style for tabs
 tab_style = {
     'backgroundColor': '#78b2ab',
     'color': '#333333',
@@ -46,6 +47,15 @@ tab_selected_style = {
     'fontWeight': 'bold',
 }
 
+style_page = {
+    'backdrop-filter': 'blur(10px)',
+    'background-color': 'rgba(255, 255, 255, 0.5)',
+    'padding': '10px',
+    'margin': '20px auto',
+    'border-radius': '10px',
+    'width': '60%'
+}
+
 # Define the Dash app
 app = Dash(__name__)
 app._favicon = "antibodies.ico"
@@ -53,7 +63,6 @@ app.title = "MabNameDecoder"
 
 # Create layout with tabs
 app.layout = html.Div(
-    # Wrap dcc.Tabs inside an html.Div to apply background styles
     html.Div(
         dcc.Tabs([
             # Decoder tab
@@ -63,10 +72,10 @@ app.layout = html.Div(
                     # Content of the Decoder tab here
                     html.Div(
                         children=[
-                            html.H1("Welcome to the Antibody Name Decoder webpage", style={'textAlign': 'center', 'margin-bottom': '20px'}),
-                            dcc.Input(id='input-antibody', type='text', placeholder='Enter antibody name here', style={'margin': '10px', 'padding': '10px', 'width': '400px'}),
+                            html.H1("Welcome to the Monoclonal Antibody Name Decoder", style={'textAlign': 'center', 'margin-bottom': '20px'}),
+                            dcc.Input(id='input-antibody', type='text', placeholder='Enter antibody name here', maxLength=50, style={'margin': '10px', 'padding': '10px', 'width': '400px'}),
                             html.Button('Decode', id='decode-button', n_clicks=0, style={'margin': '10px', 'padding': '10px'}),
-                            html.Div(id='syllabified-name', style={'margin': '10px', 'padding': '10px', 'font-weight': 'bold'}),
+                            html.Div(id='syllabified-name', style={'margin': '10px', 'padding': '10px', 'font-weight': 'bold', 'fontSize': '18px'}),
                             dash_table.DataTable(
                                 id='output-table',
                                 columns=[
@@ -94,14 +103,7 @@ app.layout = html.Div(
                                 ],
                             ),
                         ],
-                        style={
-                            'backdrop-filter': 'blur(10px)',
-                            'background-color': 'rgba(255, 255, 255, 0.5)',
-                            'padding': '10px',
-                            'margin': '20px auto',
-                            'border-radius': '10px',
-                            'width': '60%'
-                        }
+                        style= style_page,
                     ),
                 ],
                 style=tab_style,
@@ -112,11 +114,10 @@ app.layout = html.Div(
             dcc.Tab(
                 label='Generator',
                 children=[
-                    # Content of the Generator tab here
                     html.Div(
                         children=[
-                            html.H1("Welcome to the Antibody Name Generator webpage", style={'textAlign': 'center'}),
-                            dcc.Input(id='prefix-input', type='text', placeholder='Input your prefix', style={'margin': '15px 0 15px 25px', 'padding': '10px', 'width': '380px'}),
+                            html.H1("Welcome to the Monoclonal Antibody Name Generator", style={'textAlign': 'center'}),
+                            dcc.Input(id='prefix-input', type='text', placeholder='Input your prefix', maxLength=50, style={'margin': '15px 0 15px 25px', 'padding': '10px', 'width': '380px'}),
                             dcc.Dropdown(
                                 id='infix-dropdown',
                                 options=list(encode_disease_infixes.keys()),
@@ -130,16 +131,10 @@ app.layout = html.Div(
                                 style={'margin': '10px', 'padding': '0px', 'width': '500px'}
                             ),
                             html.Button('Generate', id='generate-button', n_clicks=0, style={'margin': '15px 0 15px 25px', 'padding': '10px'}),
-                            html.Div(id='antibody-name', style={'margin': '10px', 'padding': '10px'}),
+                            html.Br(),
+                            html.Div(id='antibody-name', style={'margin': '10px', 'padding': '10px', 'fontSize': '18px', "font-weight": "bold", 'display': 'inline-block'}),
                         ],
-                        style={
-                            'backdrop-filter': 'blur(10px)',
-                            'background-color': 'rgba(255, 255, 255, 0.5)',
-                            'padding': '10px',
-                            'margin': '20px auto',
-                            'border-radius': '10px',
-                            'width': '60%'
-                        }
+                        style= style_page,
                     ),
                 ],
                 style=tab_style,
@@ -174,7 +169,7 @@ def decode_antibody(n_clicks, antibody_name, existing_data):
     decoded_data = decode_molecule(antibody_name)
 
     if decoded_data is None:
-        return [], '', f"The provided antibody name {antibody_name} is not valid!"
+        return [], '', f"The provided monoclonal antibody name {antibody_name} is not valid!"
 
     # Convert the dictionary to a list of dictionaries for the DataTable
     new_data = [{'Part of Word': key, 'Meaning': value} for key, value in decoded_data.items()]
@@ -213,8 +208,8 @@ def generate_name(prefix, infix, suffix, n_clicks):
 
     prefix = prefix.lower().capitalize()
 
-    return f"Your antibody name: {prefix + encode_disease_infixes[infix] + mab_new_names[suffix]}"
+    return f"Your monoclonal antibody name: {prefix + encode_disease_infixes[infix] + mab_new_names[suffix]}" 
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False, host='0.0.0.0', port=9000, processes=2, threaded=False)
