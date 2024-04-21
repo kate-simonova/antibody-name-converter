@@ -1,9 +1,12 @@
 #!/bin/python3
+
 import pandas as pd
-from dash import Dash, html, dcc, dash_table, Input, Output, State
-from data import decode_molecule
+from dash import Dash, html, dcc, dash_table, Input, Output, State, ctx
+from data import decode_molecule, disease_infixes, mab_new_names
 from dash.exceptions import PreventUpdate
 
+
+encode_disease_infixes = {value:key for key, value in disease_infixes.items()}
 
 # Define the GitHub link and icon
 github_link = "https://github.com/kate-simonova/antibody-name-converter"
@@ -22,96 +25,138 @@ h6_element = html.H6(
     style={'textAlign': 'center', 'color': '#333333', 'font-size': '15px', 'font-family': 'cursive', 'margin': '0'}
 )
 
+tab_style = {
+    'backgroundColor': '#78b2ab',
+    'color': '#333333',
+    'font-size': '16px',
+    'cursor': 'pointer',
+    'fontWeight': 'bold',
+    'borderBottom': '1px solid black',
+}
+
+tab_selected_style = {
+    'backgroundColor': '#83cec7',
+    'borderTop': '1px solid black',
+    'borderLeft': '1px solid black',
+    'borderRight': '1px solid black',
+    'borderBottom': '1px solid black',
+    'color': 'black',
+    'font-size': '20px',
+    'cursor': 'pointer',
+    'fontWeight': 'bold',
+}
+
 # Define the Dash app
 app = Dash(__name__)
 app._favicon = "antibodies.ico"
 app.title = "MabNameDecoder"
 
-# Define the app layout
-app.layout = html.Div([
+# Create layout with tabs
+app.layout = html.Div(
+    # Wrap dcc.Tabs inside an html.Div to apply background styles
     html.Div(
-        children=[
-            # Header
-            html.H1(
-                "Welcome to the Antibody Name Decoder webpage",
-                style={'textAlign': 'center', 'margin-bottom': '20px'}
-            ),
-
-            # Input window
-            dcc.Input(
-                id='input-antibody',
-                type='text',
-                placeholder='Enter antibody name here',
-                style={'margin': '10px', 'padding': '10px', 'width': '400px'}
-            ),
-
-            # Decode button
-            html.Button('Decode', id='decode-button', n_clicks=0, style={'margin': '10px', 'padding': '10px'}),
-
-            # Syllabified antibody name
-            html.Div(
-                id='syllabified-name',
-                style={'margin': '10px', 'padding': '10px', 'font-weight': 'bold'}
-            ),
-
-            # Output table
-            dash_table.DataTable(
-                id='output-table',
-                columns=[
-                    {"name": "Part of Word", "id": "Part of Word"},
-                    {"name": "Meaning", "id": "Meaning"}
+        dcc.Tabs([
+            # Decoder tab
+            dcc.Tab(
+                label='Decoder',
+                children=[
+                    # Content of the Decoder tab here
+                    html.Div(
+                        children=[
+                            html.H1("Welcome to the Antibody Name Decoder webpage", style={'textAlign': 'center', 'margin-bottom': '20px'}),
+                            dcc.Input(id='input-antibody', type='text', placeholder='Enter antibody name here', style={'margin': '10px', 'padding': '10px', 'width': '400px'}),
+                            html.Button('Decode', id='decode-button', n_clicks=0, style={'margin': '10px', 'padding': '10px'}),
+                            html.Div(id='syllabified-name', style={'margin': '10px', 'padding': '10px', 'font-weight': 'bold'}),
+                            dash_table.DataTable(
+                                id='output-table',
+                                columns=[
+                                    {"name": "Part of Word", "id": "Part of Word"},
+                                    {"name": "Meaning", "id": "Meaning"}
+                                ],
+                                data=[],
+                                style_table={'margin': '10px', 'width': '33.33%'},
+                                style_header={'display': 'none'},
+                                style_cell={'textAlign': 'left', 'padding': '10px'},
+                                style_data_conditional=[
+                                    {
+                                        'if': {'row_index': 0},
+                                        'backgroundColor': '#83cec7',
+                                        'fontWeight': 'bold'
+                                    },
+                                    {
+                                        'if': {'column_id': 'Part of Word'},
+                                        'textAlign': 'center'
+                                    },
+                                    {
+                                        'if': {'column_id': 'Meaning'},
+                                        'textAlign': 'left'
+                                    }
+                                ],
+                            ),
+                        ],
+                        style={
+                            'backdrop-filter': 'blur(10px)',
+                            'background-color': 'rgba(255, 255, 255, 0.5)',
+                            'padding': '10px',
+                            'margin': '20px auto',
+                            'border-radius': '10px',
+                            'width': '60%'
+                        }
+                    ),
                 ],
-                data=[],
-                style_table={'margin': '10px', 'width': '33.33%'},
-                style_header={'display': 'none'},  # Hide table header
-                style_cell={'textAlign': 'left', 'padding': '10px'},
-                    style_data_conditional=[
-                    # Style the first row (index 0) with a specific background color and bold text
-                    {
-                        'if': {'row_index': 0},
-                        'backgroundColor': '#83cec7',
-                        'fontWeight': 'bold'
-                    },
-                    # Center-align the "Part of Word" column
-                    {
-                        'if': {'column_id': 'Part of Word'},
-                        'textAlign': 'center'
-                    },
-                    # Left-align the "Meaning" column
-                    {
-                        'if': {'column_id': 'Meaning'},
-                        'textAlign': 'left'
-                    }
-                ],
+                style=tab_style,
+                selected_style=tab_selected_style
             ),
-        ],
-        style={
-            'backdrop-filter': 'blur(10px)',
-            'background-color': 'rgba(255, 255, 255, 0.5)',
-            'padding': '10px',
-            'margin': '20px auto',
-            'border-radius': '10px',
-            'width': '60%'
-        }
+            
+            # Generator tab
+            dcc.Tab(
+                label='Generator',
+                children=[
+                    # Content of the Generator tab here
+                    html.Div(
+                        children=[
+                            html.H1("Welcome to the Antibody Name Generator webpage", style={'textAlign': 'center'}),
+                            dcc.Input(id='prefix-input', type='text', placeholder='Input your prefix', style={'margin': '15px 0 15px 25px', 'padding': '10px', 'width': '380px'}),
+                            dcc.Dropdown(
+                                id='infix-dropdown',
+                                options=list(encode_disease_infixes.keys()),
+                                placeholder='Select Infix for target class',
+                                style={'margin': '10px', 'padding': '0px', 'width': '500px'}
+                            ),
+                            dcc.Dropdown(
+                                id='suffix-dropdown',
+                                options=list(mab_new_names.keys()),
+                                placeholder='Select suffix based on the immunoglobulin variable domain',
+                                style={'margin': '10px', 'padding': '0px', 'width': '500px'}
+                            ),
+                            html.Button('Generate', id='generate-button', n_clicks=0, style={'margin': '15px 0 15px 25px', 'padding': '10px'}),
+                            html.Div(id='antibody-name', style={'margin': '10px', 'padding': '10px'}),
+                        ],
+                        style={
+                            'backdrop-filter': 'blur(10px)',
+                            'background-color': 'rgba(255, 255, 255, 0.5)',
+                            'padding': '10px',
+                            'margin': '20px auto',
+                            'border-radius': '10px',
+                            'width': '60%'
+                        }
+                    ),
+                ],
+                style=tab_style,
+                selected_style=tab_selected_style
+            ),
+        ]),
     ),
-    
-    # Footer with GitHub link and creator information
-    html.Div(
-        children=[
-            github_icon,
-            h6_element
-        ],
-        style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 'margin-top': '20px'}
-    )
-], style={
-    'backgroundImage': "url('/assets/diginex.jpg')",
-    'backgroundSize': 'cover',
-    'padding': '20px',
-    'border-radius': '0px',
-    'border': 'none',  
-    'width': '100%',
-    'minHeight': '100vh'
-})
+    style={
+        'backgroundImage': "url('/assets/diginex.jpg')",
+        'backgroundSize': 'cover',
+        'padding': '20px',
+        'border-radius': '0px',
+        'border': 'none',
+        'width': '100%',
+        'minHeight': '100vh'
+    }
+)
 
 # Callback function
 @app.callback(
@@ -142,6 +187,33 @@ def decode_antibody(n_clicks, antibody_name, existing_data):
     updated_data = new_data
 
     return updated_data, '', syllabified_name
+
+
+@app.callback(
+    Output('antibody-name', 'children'),
+    Input('prefix-input', 'value'),
+    Input('infix-dropdown', 'value'),
+    Input('suffix-dropdown', 'value'),
+    Input('generate-button', 'n_clicks')
+)
+
+def generate_name(prefix, infix, suffix, n_clicks):
+
+    if n_clicks == 0 or ctx.triggered_id != "generate-button":
+        raise PreventUpdate
+
+    if not prefix:
+        return "Please input a prefix (it should contain at least one letter)"
+
+    if not infix:
+        return "Please select an infix"
+
+    if not suffix:
+        return "Please select a suffix"
+
+    prefix = prefix.lower().capitalize()
+
+    return f"Your antibody name: {prefix + encode_disease_infixes[infix] + mab_new_names[suffix]}"
 
 
 if __name__ == '__main__':

@@ -1,3 +1,6 @@
+
+from collections import OrderedDict
+
 disease_infixes = {
     'ba': 'Bacterial infections',
     'ta': 'Tumor and cancers',
@@ -54,9 +57,17 @@ source_infixes = {
     'xizu': 'Chimeric-humanized',
 }
 
-source_infixes = sorted(source_infixes.items(), key=lambda x: len(x[0]), reverse=True)
-disease_infixes = sorted(disease_infixes.items(), key=lambda x: len(x[0]), reverse=True)
-disease_infixes_outdated = sorted(disease_infixes_outdated.items(), key=lambda x: len(x[0]), reverse=True)
+mab_new_names = {
+    "unmodified immunoglobulins" : "tug",
+    "artificial immunoglobulins" : "bart",
+    "immunoglobulin fragments" : "ment",
+    "multi-specific immunoglobulins" : "mig"
+}
+
+
+source_infixes = OrderedDict(sorted(source_infixes.items(), key=lambda x: len(x[0]), reverse=True))
+disease_infixes = OrderedDict(sorted(disease_infixes.items(), key=lambda x: len(x[0]), reverse=True))
+disease_infixes_outdated = OrderedDict(sorted(disease_infixes_outdated.items(), key=lambda x: len(x[0]), reverse=True))
 
 # Function to decode the antibody name
 def decode_molecule(antibody):
@@ -67,13 +78,13 @@ def decode_molecule(antibody):
         antibody = antibody[:-3]
         d["mab"] = "Monoclonal antibody (Old antibody nomenclature)"
 
-        for key, value in source_infixes:
+        for key, value in source_infixes.items():
             if antibody.endswith(key):
                 d[key] = value
                 antibody = antibody[:-len(key)]
                 break
 
-        for key, value in disease_infixes_outdated:
+        for key, value in disease_infixes_outdated.items():
             if antibody.endswith(key):
                 d[key] = value
                 antibody = antibody[:-len(key)]
@@ -81,7 +92,7 @@ def decode_molecule(antibody):
                 break
 
         if not found:
-            for key, value in disease_infixes:
+            for key, value in disease_infixes.items():
                 if antibody.endswith(key):
                     d[key] = value
                     antibody = antibody[:-len(key)]
@@ -91,29 +102,29 @@ def decode_molecule(antibody):
         d[antibody] = "Prefix"
         d["Part of the Word"] = "Meaning"
 
-         return dict(list(d.items())[::-1])
+        return dict(list(d.items())[::-1])
 
     elif antibody.endswith("ment"):
-        antibody = antibody.rstrip("ment")
+        antibody = antibody[:-4]
         d["ment"] = "Immunoglobulin fragment (derived from a variable domain) (New antibody nomenclature)"
 
     elif antibody.endswith("bart"):
-        antibody = antibody.rstrip("bart")
+        antibody = antibody[:-4]
         d["bart"] = "Artificial monoclonal antibody (New antibody nomenclature)"
 
     elif antibody.endswith("mig"):
-        antibody = antibody.rstrip("mig")
+        antibody = antibody[:-3]
         d["mig"] = "Multi-specific immunoglobulins (New antibody nomenclature)"
 
     elif antibody.endswith("tug"):
-        antibody = antibody.rstrip("tug")
+        antibody = antibody[:-3]
         d["tug"] = "Unmodified immunoglobulin (New antibody nomenclature)"
 
     else:
         print("ERROR: Invalid input")
         return None
 
-    for key, value in disease_infixes:
+    for key, value in disease_infixes.items():
         if antibody.endswith(key):
             d[key] = value
             antibody = antibody[:-len(key)]
