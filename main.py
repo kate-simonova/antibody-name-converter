@@ -59,7 +59,7 @@ style_page = {
 # Define the Dash app
 app = Dash(__name__)
 app._favicon = "antibodies.ico"
-app.title = "MabNameDecoder"
+app.title = "MabNameConverter"
 
 # Create layout with tabs
 app.layout = html.Div(
@@ -105,7 +105,14 @@ app.layout = html.Div(
                         ],
                         style= style_page,
                     ),
-                ],
+                    # Footer with GitHub link and creator information
+                html.Div(
+                    children=[
+                        github_icon,
+                        h6_element
+                    ],
+                    style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 'margin-top': '20px'}
+                )],
                 style=tab_style,
                 selected_style=tab_selected_style
             ),
@@ -136,7 +143,14 @@ app.layout = html.Div(
                         ],
                         style= style_page,
                     ),
-                ],
+                # Footer with GitHub link and creator information
+                html.Div(
+                    children=[
+                        github_icon,
+                        h6_element
+                    ],
+                    style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 'margin-top': '20px'}
+                )],
                 style=tab_style,
                 selected_style=tab_selected_style
             ),
@@ -212,4 +226,4 @@ def generate_name(prefix, infix, suffix, n_clicks):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False, host='0.0.0.0', port=9000, processes=2, threaded=False)
+    app.run_server(debug=False, host='0.0.0.0', port=9000, processes=1, threaded=False)
