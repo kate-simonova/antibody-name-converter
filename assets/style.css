@@ -1,0 +1,112 @@
+/* Styles for the page layout */
+.layout-style {
+    background-image: url('/assets/diginex.jpg');
+    background-size: cover;
+    padding: 20px;
+    border-radius: 0px;
+    border: none;
+    width: 100%;
+    height: 100vh;
+}
+
+.style-page {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 10px;
+    margin: 20px auto;
+    border-radius: 10px;
+    width: 60%;
+}
+
+/* Styles for content headers */
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input {
+    margin: 15px 0 15px 25px;
+    padding: 10px;
+    width: 380px;
+}
+
+/* Styles for input fields and buttons */
+button {
+    padding: 10px 20px;
+    background-color: #78b2ab;
+    border: 1px solid black;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px;
+}
+
+.generator-dropdown {
+    width: 80%;
+    padding: 10px;
+    margin: 10px;
+}
+
+#output-table {
+    margin: 10px;
+    width: 33.33%;
+}
+
+#output-table .dash-header {
+    display: none;
+}
+
+#output-table .dash-cell {
+    text-align: left;
+    padding: 10px;
+}
+
+/* First row styling */
+#output-table .dash-row:first-child {
+    background-color: #83cec7;
+    font-weight: bold;
+}
+
+/* Center text for the 'Part of Word' column */
+#output-table .dash-cell[data-dash-column="Part of Word"] {
+    text-align: center;
+}
+
+/* Left-align text for the 'Meaning' column */
+#output-table .dash-cell[data-dash-column="Meaning"] {
+    text-align: left;
+}
+
+.gen-out {
+    margin: 10px;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold; 
+    display: inline-block;
+}
+
+#syllabified-name {
+    margin: 10px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Styles for the DataTable */
+.style-table {
+    width: 100%;
+}
+
+/* GitHub icon style */
+.github-icon-style {
+    margin-right: 10px;
+}
+
+/* Footer style */
+.footer-style {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 20px;
+}
