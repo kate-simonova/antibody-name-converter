@@ -79,50 +79,39 @@ def decode_molecule(antibody):
         antibody = antibody[:-3]
         d['mab'] = 'Monoclonal antibody (Old antibody nomenclature)'
 
-        for key, value in source_infixes.items():
-            if antibody.endswith(key):
-                d[key] = value
-                antibody = antibody[:-len(key)]
-                break
-
-        for key, value in disease_infixes_outdated.items():
-            if antibody.endswith(key):
-                d[key] = value
-                antibody = antibody[:-len(key)]
-                found = True
-                break
-
-        if not found:
-            for key, value in disease_infixes.items():
-                if antibody.endswith(key):
-                    d[key] = value
-                    antibody = antibody[:-len(key)]
-                    break
-
-
-        d[antibody] = 'Prefix'
-        d['Part of the Word'] = 'Meaning'
-
-        return dict(list(d.items())[::-1])
-
     elif antibody.endswith(('ment', 'bart')):
+        suffix = antibody[-4:]
         antibody = antibody[:-4] 
-        d[antibody[-4:]] = mab_new_names_reversed[antibody[-4:]] + ' (New antibody nomenclature)'
-
+        d[suffix] = mab_new_names_reversed[suffix] + ' (New antibody nomenclature)'
 
     elif antibody.endswith(('mig', 'tug')):
+        suffix = antibody[-3:]
         antibody = antibody[:-3]
-        d[antibody[-3:]] =  mab_new_names_reversed[antibody[-3:]] + ' (New antibody nomenclature)'
+        d[suffix] =  mab_new_names_reversed[suffix] + ' (New antibody nomenclature)'
 
     else:
         print('ERROR: Invalid input')
         return None
 
-    for key, value in disease_infixes.items():
+    for key, value in source_infixes.items():
+            if antibody.endswith(key):
+                d[key] = value
+                antibody = antibody[:-len(key)]
+                break
+
+    for key, value in disease_infixes_outdated.items():
         if antibody.endswith(key):
             d[key] = value
             antibody = antibody[:-len(key)]
+            found = True
             break
+
+    if not found:
+        for key, value in disease_infixes.items():
+            if antibody.endswith(key):
+                d[key] = value
+                antibody = antibody[:-len(key)]
+                break
 
     d[antibody] = 'Prefix'
     d['Part of the Word'] = 'Meaning'
