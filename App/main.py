@@ -2,13 +2,12 @@
 
 import pandas as pd
 from dash import Dash, html, dcc, dash_table, Input, Output, State, ctx
-from data import decode_molecule, disease_infixes, mab_new_names
+from data import decode_molecule, disease_infixes, mab_new_names, encode_disease_infixes
 from dash.exceptions import PreventUpdate
 
 
 # Define the GitHub link and icon
 github_link = 'https://github.com/kate-simonova/antibody-name-converter'
-
 
 github_icon = html.A(href='https://github.com/kate-simonova', children=[
     html.Img(className='github-icon', src='https://img.icons8.com/material-rounded/48/000000/github.png')
@@ -39,8 +38,6 @@ tab_selected_style = {
     'fontWeight': 'bold',
 }
 
-encode_disease_infixes = {value:key for key, value in disease_infixes.items()}
-
 
 # Define the Dash app
 app = Dash(__name__)
@@ -55,7 +52,6 @@ app.layout = html.Div(
             dcc.Tab(
                 label='Decoder',
                 children=[
-                    # Content of the Decoder tab here
                     html.Div(
                         children=[
                             html.H1('Welcome to the Monoclonal Antibody Name Decoder'),
@@ -126,9 +122,9 @@ app.layout = html.Div(
     [Output('output-table', 'data'),
      Output('input-antibody', 'value'),
      Output('syllabified-name', 'children')],
-    Input('decode-button', 'n_clicks'),
-    State('input-antibody', 'value'),
-    State('output-table', 'data')
+     Input('decode-button', 'n_clicks'),
+     State('input-antibody', 'value'),
+     State('output-table', 'data')
 )
 
 def decode_antibody_name(n_clicks, antibody_name, existing_data):
