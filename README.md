@@ -9,7 +9,7 @@ git clone git@github.com:kate-simonova/antibody-name-converter.git
 
 cd antibody-name-converter
 
-docker build .
+docker build -t mab .
 docker run -h localhost -p 9002:9000 -d --name mab IMAGEID
 ```
 
