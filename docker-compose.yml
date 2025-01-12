@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  servicename:
+     image: simonovaekat/mabnameconverter:v2
+     ports:
+       - '80:9000'
