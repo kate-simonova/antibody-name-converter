@@ -59,58 +59,51 @@ source_infixes = {
 }
 
 mab_new_names = {
-    'unmodified immunoglobulins' : 'tug',
-    'artificial immunoglobulins' : 'bart',
-    'immunoglobulin fragments' : 'ment',
-    'multi-specific immunoglobulins' : 'mig'
+    'unmodified immunoglobulins (New antibody nomenclature)' : 'tug',
+    'artificial immunoglobulins (New antibody nomenclature)' : 'bart',
+    'immunoglobulin fragments (New antibody nomenclature)' : 'ment',
+    'multi-specific immunoglobulins (New antibody nomenclature)' : 'mig',
+    'monoclonal antibody (Old antibody nomenclature)' : 'mab'
 }
 
-mab_new_names_reversed = dict((value, key) for key, value in mab_new_names.items())
+
 disease_infixes = OrderedDict(sorted(disease_infixes.items(), key=lambda x: len(x[0]), reverse=True))
 disease_infixes_outdated = OrderedDict(sorted(disease_infixes_outdated.items(), key=lambda x: len(x[0]), reverse=True))
 source_infixes = OrderedDict(sorted(source_infixes.items(), key=lambda x: len(x[0]), reverse=True))
+encode_disease_infixes = {value:key for key, value in disease_infixes.items()}
 
 # Function to decode the antibody name
 def decode_molecule(antibody):
     d, found = {}, False
     antibody = antibody.lower()
 
-    if antibody.endswith('mab'):
-        antibody = antibody[:-3]
-        d['mab'] = 'Monoclonal antibody (Old antibody nomenclature)'
-
-    elif antibody.endswith(('ment', 'bart')):
-        suffix = antibody[-4:]
-        antibody = antibody[:-4] 
-        d[suffix] = mab_new_names_reversed[suffix] + ' (New antibody nomenclature)'
-
-    elif antibody.endswith(('mig', 'tug')):
-        suffix = antibody[-3:]
-        antibody = antibody[:-3]
-        d[suffix] =  mab_new_names_reversed[suffix] + ' (New antibody nomenclature)'
-
+    for description, suffix in mab_new_names.items():
+        if antibody.endswith(suffix):
+            antibody = antibody[:-len(suffix)] 
+            d[suffix] = description
+            break
     else:
         print('ERROR: Invalid input')
         return None
 
-    for key, value in source_infixes.items():
-            if antibody.endswith(key):
-                d[key] = value
-                antibody = antibody[:-len(key)]
+    for infix, description in source_infixes.items():
+            if antibody.endswith(infix):
+                d[infix] = description
+                antibody = antibody[:-len(infix)]
                 break
 
-    for key, value in disease_infixes_outdated.items():
-        if antibody.endswith(key):
-            d[key] = value
-            antibody = antibody[:-len(key)]
+    for infix, description in disease_infixes.items():
+        if antibody.endswith(infix):
+            d[infix] = description
+            antibody = antibody[:-len(infix)]
             found = True
             break
 
     if not found:
-        for key, value in disease_infixes.items():
-            if antibody.endswith(key):
-                d[key] = value
-                antibody = antibody[:-len(key)]
+        for infix, description in disease_infixes_outdated.items():
+            if antibody.endswith(infix):
+                d[infix] = description
+                antibody = antibody[:-len(infix)]
                 break
 
     d[antibody] = 'Prefix'
