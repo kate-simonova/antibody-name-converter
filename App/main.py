@@ -6,13 +6,15 @@ from data import decode_molecule, disease_infixes, mab_new_names
 from dash.exceptions import PreventUpdate
 
 
-encode_disease_infixes = {value:key for key, value in disease_infixes.items()}
+# Define the GitHub link and icon
+github_link = 'https://github.com/kate-simonova/antibody-name-converter'
 
-github_icon = html.A(href="https://github.com/kate-simonova", children=[
-    html.Img(className="github-icon", src="https://img.icons8.com/material-rounded/48/000000/github.png")
-], className="github-icon")
 
-footer = html.H3("Created by Ekaterina Simonova © 2024")
+github_icon = html.A(href='https://github.com/kate-simonova', children=[
+    html.Img(className='github-icon', src='https://img.icons8.com/material-rounded/48/000000/github.png')
+], className='github-icon')
+
+footer = html.H2('Created by Ekaterina Simonova © 2024')
 
 
 # Define style for tabs
@@ -37,22 +39,13 @@ tab_selected_style = {
     'fontWeight': 'bold',
 }
 
-
-import pandas as pd
-from dash import Dash, html, dcc, dash_table, Input, Output, State, ctx
-from data import decode_molecule, disease_infixes, mab_new_names
-from dash.exceptions import PreventUpdate
-
 encode_disease_infixes = {value:key for key, value in disease_infixes.items()}
-
-# Define the GitHub link and icon
-github_link = "https://github.com/kate-simonova/antibody-name-converter"
 
 
 # Define the Dash app
 app = Dash(__name__)
-app._favicon = "antibodies.ico"
-app.title = "MabNameConverter"
+app._favicon = 'antibodies.ico'
+app.title = 'MabNameConverter'
 
 # Create layout with tabs
 app.layout = html.Div(
@@ -65,7 +58,7 @@ app.layout = html.Div(
                     # Content of the Decoder tab here
                     html.Div(
                         children=[
-                            html.H1("Welcome to the Monoclonal Antibody Name Decoder"),
+                            html.H1('Welcome to the Monoclonal Antibody Name Decoder'),
                             dcc.Input(id='input-antibody', type='text', placeholder='Enter antibody name here', maxLength=50),
                             html.Button('Decode', id='decode-button', n_clicks=0),
                             html.Div(id='syllabified-name'),
@@ -81,7 +74,7 @@ app.layout = html.Div(
                         github_icon,
                         footer
                     ],
-                    className="footer-style"
+                    className='footer-style'
                 )],
                 style=tab_style,
                 selected_style=tab_selected_style
@@ -93,7 +86,7 @@ app.layout = html.Div(
                 children=[
                     html.Div(
                         children=[
-                            html.H1("Welcome to the Monoclonal Antibody Name Generator"),
+                            html.H1('Welcome to the Monoclonal Antibody Name Generator'),
                             dcc.Input(id='prefix-input', type='text', placeholder='Input your prefix', maxLength=50),
                             dcc.Dropdown(
                                 id='infix-dropdown',
@@ -118,14 +111,14 @@ app.layout = html.Div(
                         github_icon,
                         footer
                     ],
-                    className="footer-style"
+                    className='footer-style'
                 )],
                 style=tab_style,
                 selected_style=tab_selected_style
             ),
         ]),
     ),
-    className="layout-style",
+    className='layout-style',
 )
 
 # Callback function
@@ -137,19 +130,18 @@ app.layout = html.Div(
     State('input-antibody', 'value'),
     State('output-table', 'data')
 )
-def decode_antibody(n_clicks, antibody_name, existing_data):
+
+def decode_antibody_name(n_clicks, antibody_name, existing_data):
     if n_clicks == 0 or not antibody_name:
         raise PreventUpdate
 
     decoded_data = decode_molecule(antibody_name)
 
     if decoded_data is None:
-        return [], '', f"The provided monoclonal antibody name {antibody_name} is not valid!"
+        return [], '', f'The provided monoclonal antibody name {antibody_name} is not valid!'
 
-    # Convert the dictionary to a list of dictionaries for the DataTable
     new_data = [{'Part of Word': key, 'Meaning': value} for key, value in decoded_data.items()]
 
-    # Syllabify the "Part of Word" column values and join them with hyphens
     part_of_word_list = [item['Part of Word'] for item in new_data][1::]
 
     syllabified_name = '-'.join(part_of_word_list)
@@ -167,23 +159,23 @@ def decode_antibody(n_clicks, antibody_name, existing_data):
     Input('generate-button', 'n_clicks')
 )
 
-def generate_name(prefix, infix, suffix, n_clicks):
+def encode_antibody_name(prefix, infix, suffix, n_clicks):
 
-    if n_clicks == 0 or ctx.triggered_id != "generate-button":
+    if n_clicks == 0 or ctx.triggered_id != 'generate-button':
         raise PreventUpdate
 
     if not prefix:
-        return "Please input a prefix (it should contain at least one letter)"
+        return 'Please input a prefix (it should contain at least one letter)'
 
     if not infix:
-        return "Please select an infix"
+        return 'Please select an infix'
 
     if not suffix:
-        return "Please select a suffix"
+        return 'Please select a suffix'
 
     prefix = prefix.lower().capitalize()
 
-    return f"Your monoclonal antibody name: {prefix + encode_disease_infixes[infix] + mab_new_names[suffix]}" 
+    return f'Your monoclonal antibody name: {prefix + encode_disease_infixes[infix] + mab_new_names[suffix]}' 
 
 
 if __name__ == '__main__':
